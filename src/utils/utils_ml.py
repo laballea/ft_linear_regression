@@ -111,3 +111,63 @@ def denormalize(x, norm_x):
         max_r = max(row_x)
         result.append([el * (max_r - min_r) + min_r for el in row_norm_x])
     return np.array(result).T
+
+
+from cmath import inf
+import numpy as np
+
+
+
+class Normalizer():
+    def __init__(self, X = None):
+        if X is not None:
+            self.X = X
+            self.mean_ = np.mean(X, axis=0)
+            self.std_ = np.std(X, axis=0)
+        else:
+            self.mean_ = None
+            self.std_ = None
+        
+    def z_score(self, X):
+        try:
+            X_tr = np.copy(X)
+            X_tr -= self.mean_
+            X_tr /= self.std_
+            return X_tr
+        except Exception as inst:
+            print(inst)
+            return 0
+
+    def unz_score(self, X_tr):
+        try:
+            X = np.copy(X_tr)
+            X *= self.std_
+            X += self.mean_
+            return X
+        except Exception:
+            return np.array([[0.0]])
+
+    def minmax(self, x):
+        if not isinstance(x, np.ndarray):
+            print("normalize Invalid type.")
+            return None
+        result = []
+        for row_x, row_base in zip(x.T, self.X.T):
+            min_r = min(row_base)
+            max_r = max(row_base)
+            result.append([(el - min_r) / (max_r - min_r) for el in row_x])
+        return np.array(result).T
+
+    def unminmax(self, x):
+        """
+        normalize matrix with minmax method
+        """
+        if not isinstance(x, np.ndarray):
+            print("normalize Invalid type.")
+            return None
+        result = []
+        for row_x, row_base in zip(x.T, self.X.T):
+            min_r = min(row_base)
+            max_r = max(row_base)
+            result.append([el * (max_r - min_r) + min_r for el in row_x])
+        return np.array(result).T
